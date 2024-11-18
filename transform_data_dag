@@ -28,7 +28,7 @@ def transform_data(**kwargs):
     df['Wind Speed (km/h)'].fillna(df['Wind Speed (km/h)'].mean(), inplace=True)
     logging.info('Completed missing value handling')
 
-    # Handle erroneous values using IQR and replacing with mean
+    # Handle erroneous values using IQR and replacing with mean (without restricting negative values)
     for col in ['Temperature (C)', 'Humidity', 'Wind Speed (km/h)']:
         # Calculate IQR (Interquartile Range)
         Q1 = df[col].quantile(0.25)
@@ -40,10 +40,8 @@ def transform_data(**kwargs):
         # Replace outliers with column mean
         col_mean = df[col].mean()
         df[col] = df[col].apply(lambda x: col_mean if x < lower_bound or x > upper_bound else x)
-
-        # Replace negative values with column mean (as invalid data)
-        df[col] = df[col].apply(lambda x: col_mean if x < 0 else x)
-    logging.info('Completed outlier and negative value handling')
+    
+    logging.info('Completed outlier handling')
 
     # Add a new column for wind strength categorization based on wind speed
     def categorize_wind_speed(wind_speed):
