@@ -4,6 +4,7 @@ from datetime import datetime
 from extract import extract_data
 from transform import transform_data
 from validate import validate_data
+from load_data import load_data  # Import the load_data function
 
 # Define the DAG
 dag = DAG(
@@ -38,5 +39,13 @@ validate_data_task = PythonOperator(
     dag=dag
 )
 
-# Set task dependencies (without load_data task)
-extract_data_task >> transform_data_task >> validate_data_task
+# Define the load data task
+load_data_task = PythonOperator(
+    task_id='load_data',
+    python_callable=load_data,
+    provide_context=True,
+    dag=dag
+)
+
+# Set task dependencies
+extract_data_task >> transform_data_task >> validate_data_task >> load_data_task
